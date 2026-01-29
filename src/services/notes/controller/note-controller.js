@@ -2,7 +2,7 @@ import InvariantError from '../../../exceptions/invariant-error.js';
 import response from '../../../utils/response.js';
 import NotFoundError from '../../../exceptions/not-found-error.js';
 import AuthorizationError from '../../../exceptions/authorization-error.js';
-import NoteRepositories from '../repositories/repositories.js';
+import NoteRepositories from '../repositories/note-repositories.js';
 
 export const addNote = async (req, res, next) => {
   const { title, tags, body } = req.validated;
@@ -33,7 +33,7 @@ export const getNoteById = async (req, res, next) => {
   const { id } = req.params;
   const { id: owner } = req.user;
 
-  const isOwner = await NoteRepositories.verifyNoteOwner(id, owner);
+  const isOwner = await NoteRepositories.verifyNoteAccess(id, owner);
 
   if (!isOwner) {
     return next(
@@ -54,22 +54,22 @@ export const editNote = async (req, res, next) => {
   const { id } = req.params;
   const { title, body, tags } = req.validated;
 
-  const note = await NoteRepositories.editNote({
-    id,
-    title,
-    body,
-    tags,
-  });
-
   const { id: owner } = req.user;
 
-  const isOwner = await NoteRepositories.verifyNoteOwner(id, owner);
+  const isOwner = await NoteRepositories.verifyNoteAccess(id, owner);
 
   if (!isOwner) {
     return next(
       new AuthorizationError('Anda tidak berhak mengakses resource ini'),
     );
   }
+
+  const note = await NoteRepositories.editNote({
+    id,
+    title,
+    body,
+    tags,
+  });
 
   if (!note) {
     return next(new NotFoundError('Catatan tidak ditemukan'));
