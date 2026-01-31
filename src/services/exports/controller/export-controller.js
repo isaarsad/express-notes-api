@@ -10,5 +10,5 @@ export const exportNotes = async (req, res) => {
   };
 
   await ExportService.sendMessage('export:notes', JSON.stringify(message));
-  return response(res, 201, 'Permintaan export catatan dalam antrean');
+  return response(res, 201, 'Permintaan export catatan Anda dalam antrean');
 };
